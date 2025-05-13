@@ -5,9 +5,9 @@ from time import time as timer
 
 win_width = 600
 win_height = 500
-window = display.set_mode((700, 500))
+window = display.set_mode((600, 500))
 display.set_caption("school shooter")
-background = transform.scale(image.load("grass.png"), (700, 500))
+background = transform.scale(image.load("grass.png"), (600, 500))
 
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, size_x, size_y, player_speed, wight, height):
@@ -28,21 +28,31 @@ class Player(GameSprite):
         if keys[K_DOWN] and self.rect.y < win_height - 80:
             self.rect.y += self.speed
 
-    def update(self):
+    def update_l(self):
         keys = key.get_pressed()
-        if keys[K_LEFT] and self.rect.x > 5:
-            self.rect.x -= self.speed
-        if keys[K_RIGHT] and self.rect.x < win_width - 80:
-            self.rect.x += self.speed
+        if keys[K_w] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_s] and self.rect.y < win_height - 80:
+            self.rect.y += self.speed
+font.init()
+font1 = font.Font(None, 35)
+lose1 = font1. render("ZOMBIE WIN", True, (180, 0, 0))
 
+font2 = font.Font(None, 35)
+lose2 = font2. render("PLANT WIN", True, (180, 0, 0))
+
+back = (0, 133, 0)
 game = True
 finish = False
 clock = time.Clock()
 FPS = 60
 
-racket1 = Player('wallnut.png', 30, 200, 4, 50, 150, 50, 150)
-racket2 = Player('zombie.png', 30, 200, 4, 50, 150, 50, 150)
-ball = Player('fireball.png', 200, 200, 4, 50, 50, 50, 50)
+speed_x = 3
+speed_y = 3
+
+racket1 = Player('wallnut.png', 30, 200, 60, 150, 7, 110, 600)
+racket2 = Player('zombie.png', 530, 200, 60, 150, 7, 110, 600)
+ball = Player('fireball.png', 300, 200, 75, 75, 3, 50, 50)
 
 while game:
 
@@ -55,10 +65,27 @@ while game:
         racket1.update_l()
         racket2.update_r()
 
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
         racket1.reset()
         racket2.reset()
-        ball()
+        ball.reset()
     
-    display.update()
+    if ball.rect.y > win_height-50 or ball.rect.y < 0:
+        speed_y *= -1 
 
+    if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
+        speed_x *= -1
+
+    if ball.rect.x < 0:
+        finish = True
+        window.blit(lose1, (200, 200))
+    
+    if ball.rect.x > 600:
+        finish = True
+        window.blit(lose2, (200, 200))
+
+    display.update()
+    clock.tick(FPS)
         
